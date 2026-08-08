@@ -2,6 +2,14 @@ services:
   nginx:
     image: nginx:alpine
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+        reservations:
+          cpus: '0.05'
+          memory: 16M
     ports:
       - "80:80"
     volumes:
@@ -20,6 +28,14 @@ services:
     build:
       context: ./php
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 64M
+        reservations:
+          cpus: '0.10'
+          memory: 32M
     volumes:
       - ./php/src:/var/www/html/src
     environment:
@@ -32,6 +48,14 @@ services:
     build:
       context: ./fastapi
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     # ports:
     #   - "8000:8000"
     env_file:
@@ -52,6 +76,14 @@ services:
   phpmyadmin:
     image: phpmyadmin:fpm-alpine
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
     volumes:
       - pma_shared_files:/var/www/html/
     environment:
@@ -69,6 +101,14 @@ services:
   mysql:
     image: mysql:8.0
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.50'
+          memory: 2048M
+        reservations:
+          cpus: '1'
+          memory: 1024M
     environment:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
