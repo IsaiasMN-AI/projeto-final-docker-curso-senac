@@ -1,8 +1,9 @@
 import os
+import json # Necessário para converter os dados do banco para texto (string)
 from fastapi import FastAPI, HTTPException
 import mysql.connector
+import redis # Importando o cliente do Redis
 
-# ESTA É A VARIÁVEL QUE O UVICORN ESTÁ PROCURANDO:
 app = FastAPI(title="API Loja Genérica")
 
 def get_db_connection():
@@ -23,18 +24,47 @@ def get_db_connection():
         )
         return conn
     except mysql.connector.Error as e:
-        print(f"Erro de conexão: {e}")
+        print(f"Erro de conexão MySQL: {e}")
+        return None
+
+def get_redis_connection():
+    """Estabelece conexão com o Redis via Variáveis de Ambiente."""
+    try:
+        host = os.environ.get("REDIS_HOST", "localhost")
+        port = int(os.environ.get("REDIS_PORT", 6379))
+        
+        # decode_responses=True já retorna os dados como string em vez de bytes
+        cache = redis.Redis(host=host, port=port, decode_responses=True)
+        return cache
+    except redis.RedisError as e:
+        print(f"Erro de conexão Redis: {e}")
         return None
 
 # Definindo a rota que o index.php vai consumir
 @app.get("/api/produtos")
 def fetch_produtos_com_categorias():
+    cache = get_redis_connection()
+    cache_key = "lista_produtos_categorias"
+
+    # PASSO 1: Tenta buscar do cache primeiro
+    if cache:
+        try:
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                print("Cache Hit! Retornando dados do Redis.")
+                # O Redis salva como string, precisamos converter de volta para JSON/dicionário
+                return json.loads(cached_data)
+        except redis.RedisError as e:
+            print(f"Falha ao ler do Redis: {e}")
+            # Se o Redis falhar, não paramos a API. Deixamos seguir para o banco.
+
+    # PASSO 2: Cache Miss! Busca no MySQL
+    print("Cache Miss! Buscando no MySQL...")
     conn = get_db_connection()
     if not conn:
         raise HTTPException(status_code=500, detail="Erro ao conectar no banco de dados.")
 
     try:
-        # dictionary=True retorna os dados como chave-valor, e o FastAPI já converte pra JSON automático
         cur = conn.cursor(dictionary=True)
         
         query = """
@@ -46,6 +76,18 @@ def fetch_produtos_com_categorias():
         cur.execute(query)
         resultados = cur.fetchall()
         
+        # PASSO 3: Salva o resultado no cache para as próximas requisições
+        if cache:
+            try:
+                # O Redis precisa que dicionários/listas sejam convertidos em string
+                dados_para_cache = json.dumps(resultados)
+                
+                # setex salva a chave com um TTL (Time To Live) de 60 segundos
+                cache.setex(cache_key, 60, dados_para_cache)
+                print("Dados salvos no Redis com sucesso!")
+            except redis.RedisError as e:
+                print(f"Falha ao salvar no Redis: {e}")
+        
         return resultados
         
     except mysql.connector.Error as e:
@@ -53,5 +95,6 @@ def fetch_produtos_com_categorias():
     finally:
         if 'cur' in locals():
             cur.close()
-        if conn.is_connected():
+        if conn and conn.is_connected():
             conn.close()
+            
