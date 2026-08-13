@@ -80,7 +80,7 @@ def fetch_produtos_com_categorias():
         if cache:
             try:
                 # O Redis precisa que dicionários/listas sejam convertidos em string
-                dados_para_cache = json.dumps(resultados)
+                dados_para_cache = json.dumps(resultados, default=str)
                 
                 # setex salva a chave com um TTL (Time To Live) de 60 segundos
                 cache.setex(cache_key, 60, dados_para_cache)
@@ -97,4 +97,3 @@ def fetch_produtos_com_categorias():
             cur.close()
         if conn and conn.is_connected():
             conn.close()
-            
