@@ -3,8 +3,22 @@ import json # Necessário para converter os dados do banco para texto (string)
 from fastapi import FastAPI, HTTPException
 import mysql.connector
 import redis # Importando o cliente do Redis
+from pydantic import BaseModel
+# Importa a função do motor que acabamos de criar
+from app.motor import executar_teste_carga
 
 app = FastAPI(title="API Loja Genérica")
+
+class ConfigTeste(BaseModel):
+    url: str
+    total: int
+    concorrencia: int
+
+@app.post("/api/teste-carga")
+def disparar_teste(config: ConfigTeste):
+    # Executa a carga pesada
+    resultado = executar_teste_carga(config.url, config.total, config.concorrencia)
+    return resultado
 
 def get_db_connection():
     """Estabelece conexão com o banco de dados MySQL via Variáveis de Ambiente."""
