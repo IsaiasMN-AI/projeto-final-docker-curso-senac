@@ -136,9 +136,36 @@ services:
     networks:
       - rede_app
 
+  grafana:
+    image: grafana/grafana:latest
+    # ports:
+    #   - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SERVER_ROOT_URL=http://${IP_VM}/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    networks:
+      - rede_proxy
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+  portainer:
+    image: portainer/portainer-ce:lts
+    ports:
+      - "8001:8000"
+      - "9000:9000"
+    networks:
+      - rede_portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data portainer/portainer-ce:lts
+
 volumes:
   mysql_data:
   pma_shared_files:
+  grafana-storage:
+  portainer_data:
 
 networks:
   rede_proxy:
@@ -146,3 +173,4 @@ networks:
     internal: true
   rede_db:
     internal: true
+  rede_portainer:
