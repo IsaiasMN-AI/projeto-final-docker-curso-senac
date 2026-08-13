@@ -61,6 +61,8 @@ services:
     env_file:
       - .env
     environment:
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       DB_NAME: ${DB_NAME}
@@ -126,6 +128,11 @@ services:
       retries: 5
     networks:
       - rede_db
+  
+  redis:
+    image: redis:8.8.1
+    ports:
+      - '6379:6379'
 
 volumes:
   mysql_data:
