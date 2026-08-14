@@ -58,6 +58,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .container {
             width: 100%; max-width: 800px;
         }
+        
+        /* Estilo do Botão de Voltar */
+        .btn-back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 10px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+        .btn-back:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
         .card {
             background: var(--card-bg);
             border-radius: 12px;
@@ -105,6 +124,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 
 <div class="container">
+    
+    <!-- Botão de Voltar adicionado aqui -->
+    <a href="index.php" class="btn-back">← Voltar para a Loja</a>
+
     <div class="card">
         <h2>Teste de Carga</h2>
         <form method="POST">
