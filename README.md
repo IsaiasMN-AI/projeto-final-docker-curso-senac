@@ -40,7 +40,7 @@ docker compose up -d --build
 
 2. **Teste de Carga (Relatório):**
 
-![Tela inicial do sistema em PHP](prints/teste_carga.png)
+![Tela inicial do sistema em PHP](prints/teste_carga_print.png)
 
 3. **Observabilidade:**
 
