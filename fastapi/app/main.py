@@ -6,8 +6,11 @@ import redis # Importando o cliente do Redis
 from pydantic import BaseModel
 # Importa a função do motor que acabamos de criar
 from app.motor import executar_teste_carga
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(title="API Loja Genérica")
+
+Instrumentator().instrument(app).expose(app)
 
 class ConfigTeste(BaseModel):
     url: str

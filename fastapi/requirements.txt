@@ -5,3 +5,4 @@ pymysql
 cryptography
 mysql-connector-python
 redis
+prometheus-fastapi-instrumentator
