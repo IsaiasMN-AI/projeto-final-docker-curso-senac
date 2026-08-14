@@ -39,8 +39,9 @@ services:
     volumes:
       - ./php/src:/var/www/html/src
     environment:
-      APP_ENV: development
+      # APP_ENV: development
       API_BASE_URL: ${API_BASE_URL}
+      IP_VM: ${IP_VM}
     networks:
       - rede_app
 
