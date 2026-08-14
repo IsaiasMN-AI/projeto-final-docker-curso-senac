@@ -75,6 +75,7 @@ services:
     networks:
       - rede_app
       - rede_db
+      - rede_metrics
 
   phpmyadmin:
     image: phpmyadmin:fpm-alpine
@@ -148,8 +149,19 @@ services:
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
     networks:
       - rede_proxy
+      - rede_metrics
     volumes:
       - grafana-storage:/var/lib/grafana
+
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - rede_metrics
 
   portainer:
     image: portainer/portainer-ce:lts
@@ -175,3 +187,5 @@ networks:
   rede_db:
     internal: true
   rede_portainer:
+  rede_metrics:
+    internal: true
