@@ -34,7 +34,9 @@ def get_db_connection():
             port=port,
             database=dbname,
             user=user,
-            password=password
+            password=password,
+            charset='utf8mb4',   # <-- ADICIONE ESTA LINHA
+            use_unicode=True     # <-- ADICIONE ESTA LINHA
         )
         return conn
     except mysql.connector.Error as e:
@@ -94,7 +96,7 @@ def fetch_produtos_com_categorias():
         if cache:
             try:
                 # O Redis precisa que dicionários/listas sejam convertidos em string
-                dados_para_cache = json.dumps(resultados, default=str)
+                dados_para_cache = json.dumps(resultados, default=str, ensure_ascii=False)
                 
                 # setex salva a chave com um TTL (Time To Live) de 60 segundos
                 cache.setex(cache_key, 60, dados_para_cache)
