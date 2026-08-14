@@ -106,10 +106,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container">
     <div class="card">
-        <h2>🚀 Configuração do Ataque</h2>
+        <h2>Teste de Carga</h2>
         <form method="POST">
             <div class="form-group">
-                <label>URL Alvo (Para testar o proxy reverso):</label>
+                <label>URL Alvo:</label>
                 <!-- Ajuste o value para a rota web real que o Nginx está expondo -->
                 <input type="url" name="url" value="http://api:8000/api/produtos" required>
             </div>
@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php if ($resultado): ?>
     <div class="card">
-        <h2>📊 Relatório de Desempenho</h2>
+        <h2>Relatório de Desempenho</h2>
         <div class="metrics-grid">
             <div class="metric-box">
                 Tempo de Execução

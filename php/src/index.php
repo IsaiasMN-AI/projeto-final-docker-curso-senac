@@ -1,18 +1,19 @@
 <?php
+header('Content-Type: text/html; charset=utf-8');
 // ==========================================
 // 1. CONFIGURAÇÃO DE CONSUMO DA API
 // ==========================================
-
-// OPÇÃO A: Consumindo de uma API real
 $api_url = "http://api:8000/api/produtos";
 $json_data = @file_get_contents($api_url);
 
-// OPÇÃO B: Executando o script Python diretamente (descomente as 2 linhas abaixo se não tiver uma API rodando)
-// $comando = "python3 consumir_dados.py"; // ou apenas 'python' dependendo do seu SO
-// $json_data = shell_exec($comando);
+// ==========================================
+// 2. CONFIGURAÇÃO DE AMBIENTE (INFRA)
+// ==========================================
+// Captura o IP da VM passado pelo Docker. Se não existir, usa 'localhost' como fallback de segurança.
+$ip_vm = getenv('IP_VM') ?: 'localhost';
 
 // ==========================================
-// 2. TRATAMENTO DOS DADOS
+// 3. TRATAMENTO DOS DADOS
 // ==========================================
 $produtos = json_decode($json_data, true);
 $erro_api = false;
@@ -77,22 +78,57 @@ if ($produtos === null || isset($produtos['erro_conexao']) || isset($produtos['e
             margin-bottom: 2rem;
             border-radius: 0 0 20px 20px;
         }
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <!-- Navegação -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="#"><i class="fa-solid fa-store me-2"></i>TechStore</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link active" href="#">Início</a></li>
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link active" href="index.php">Início</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Produtos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Contato</a></li>
+                    
+                    <!-- MENU DROPDOWN DE FERRAMENTAS -->
+                    <li class="nav-item dropdown ms-2">
+                        <a class="nav-link dropdown-toggle btn btn-outline-secondary text-white border-0" href="#" id="ferramentasMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa-solid fa-screwdriver-wrench me-1"></i> Infraestrutura
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="ferramentasMenu">
+                            <li>
+                                <a class="dropdown-item" href="teste_carga.php">
+                                    <i class="fa-solid fa-bolt text-warning me-2"></i> Teste de Carga
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/grafana/" target="_blank">
+                                    <i class="fa-solid fa-chart-line text-success me-2"></i> Grafana
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <!-- phpMyAdmin agora acessado via rota do Nginx -->
+                            <li>
+                                <a class="dropdown-item" href="/phpmyadmin/" target="_blank">
+                                    <i class="fa-solid fa-database text-primary me-2"></i> phpMyAdmin
+                                </a>
+                            </li>
+                            <!-- Portainer acessado via IP dinâmico da VM -->
+                            <li>
+                                <a class="dropdown-item" href="http://<?= htmlspecialchars($ip_vm) ?>:9000" target="_blank">
+                                    <i class="fa-brands fa-docker text-info me-2"></i> Portainer
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -110,21 +146,16 @@ if ($produtos === null || isset($produtos['erro_conexao']) || isset($produtos['e
     <div class="container mb-5">
         
         <?php if ($erro_api): ?>
-            <!-- Alerta de Erro -->
             <div class="alert alert-danger shadow-sm" role="alert">
                 <i class="fa-solid fa-triangle-exclamation me-2"></i>
                 <strong>Ops!</strong> Não foi possível carregar os dados da API. Verifique se o servidor Python/Banco de Dados está rodando.
             </div>
         <?php else: ?>
-            
-            <!-- Grid de Produtos -->
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                
                 <?php foreach ($produtos as $produto): ?>
                     <div class="col">
                         <div class="card card-produto h-100 shadow-sm position-relative">
                             
-                            <!-- Badge de Categoria -->
                             <span class="badge bg-primary badge-categoria shadow-sm">
                                 <?= htmlspecialchars($produto['categoria']) ?>
                             </span>
@@ -160,20 +191,17 @@ if ($produtos === null || isset($produtos['erro_conexao']) || isset($produtos['e
                         </div>
                     </div>
                 <?php endforeach; ?>
-
-            </div> <!-- Fim Grid -->
+            </div>
         <?php endif; ?>
 
     </div>
 
-    <!-- Rodapé -->
     <footer class="bg-dark text-light text-center py-4 mt-auto">
         <div class="container">
             <p class="mb-0">&copy; <?= date('Y') ?> TechStore. Consumindo dados via API.</p>
         </div>
     </footer>
 
-    <!-- Bootstrap JS (opcional, para menus responsivos) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.css"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
