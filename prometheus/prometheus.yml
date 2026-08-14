@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 5s # Define que o Prometheus vai coletar dados a cada 5 segundos
+
+scrape_configs:
+  - job_name: 'api_python'
+    static_configs:
+      # O alvo é o nome do seu contêiner da API e a porta onde o FastAPI roda
+      - targets: ['api:8000']
