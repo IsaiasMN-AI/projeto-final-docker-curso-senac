@@ -15,6 +15,52 @@ Este repositório contém a infraestrutura em contêineres para uma aplicação 
 ```bash
 IP_VM=seu_ip_aqui
 ```
+```bash
+DB_USER=user_name
+```
+```bash
+DB_PASSWORD=user_pass
+```
+```bash
+DB_ROOT_PASSWORD=root_pass
+```
+```bash
+GF_SECURITY_ADMIN_USER=admin_user
+```
+```bash
+GF_SECURITY_ADMIN_PASSWORD=admin_pass
+```
+
+### Automação do Backup (Crontab)
+
+Para agendar a execução automática do script de backup todos os dias, siga o passo a passo no terminal:
+
+1. Dê permissão de execução ao script:
+```bash
+chmod +x /caminho/completo/ate/o/script/backup-script-mysql.sh
+```
+
+2. Ajuste as permissões do diretório para o seu usuário:
+```bash
+sudo chown -R user_name:user_name /caminho/completo/ate/database
+```
+
+3. Abra o editor de tarefas agendadas:
+```bash
+crontab -e
+```
+
+4. Cole a linha abaixo no final do arquivo, salve e feche (de 1 em 1 minuto nesse exemplo):
+```bash
+* * * * * /caminho/completo/ate/o/script/backup-script-mysql.sh
+```
+
+### Gerar Autenticação para o PHPMYADMIN
+
+1. Execute o comando na raiz do projeto:
+```bash
+docker run -i --rm httpd htpasswd -n -B user_name > .htpasswd
+```
 
 ## 2. Execução
 
@@ -28,7 +74,7 @@ docker compose up -d --build
 * **Frontend (Loja):** `http://<IP_VM>`
 * **Painel de Teste de Carga:** `http://<IP_VM>/teste_carga.php`
 * **API FastAPI:** `http://<IP_VM>/api/produtos`
-* **Grafana:** `http://<IP_VM>/grafana/` (Credenciais padrão: admin / admin)
+* **Grafana:** `http://<IP_VM>/grafana/`
 * **phpMyAdmin:** `http://<IP_VM>/phpmyadmin/`
 * **Portainer:** `http://<IP_VM>:9000`
 
@@ -68,28 +114,4 @@ Para interromper a execução, destruir os contêineres e apagar os volumes de d
 
 ```bash
 docker compose down -v
-```
-
-### Automação do Backup (Crontab)
-
-Para agendar a execução automática do script de backup todos os dias, siga o passo a passo no terminal:
-
-1. Dê permissão de execução ao script:
-```bash
-chmod +x /caminho/completo/ate/o/script/backup-script-mysql.sh
-```
-
-2. Ajuste as permissões do diretório para o seu usuário:
-```bash
-sudo chown -R user_name:user_name /caminho/completo/ate/database
-```
-
-3. Abra o editor de tarefas agendadas:
-```bash
-crontab -e
-```
-
-4. Cole a linha abaixo no final do arquivo, salve e feche (de 1 em 1 minuto nesse exemplo):
-```bash
-* * * * * /caminho/completo/ate/o/script/backup-script-mysql.sh
 ```
